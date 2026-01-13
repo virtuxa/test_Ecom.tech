@@ -44,7 +44,7 @@ export async function analyzeStream(
         throw new Error(`Invalid line (${parsed.error.code}): ${parsed.error.message}`);
       }
       if (invalidLines > maxInvalidLines) {
-        throw new Error(`Too many invalid lines (> ${maxInvalidLines})`);
+        throw new Error(`Too many invalid lines (${maxInvalidLines})`);
       }
       continue;
     }

@@ -45,13 +45,13 @@ test("analyzeStream завершает работу при ошибке в stric
   ];
   const input = Readable.from([`${lines.join("\n")}\n`]);
 
-  await assert.rejects(() => analyzeStream(input, { strict: true }), /Неверная строка/);
+  await assert.rejects(() => analyzeStream(input, { strict: true }), /Invalid line/);
 });
 
 test("analyzeStream останавливается при превышении maxInvalidLines", async () => {
   const input = Readable.from(["bad line 1\nbad line 2\nbad line 3\n"]);
   await assert.rejects(
     () => analyzeStream(input, { maxInvalidLines: 2, strict: false }),
-    /Слишком много невалидных строк/,
+    /Too many invalid lines/,
   );
 });

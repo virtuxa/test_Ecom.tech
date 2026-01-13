@@ -65,6 +65,6 @@ docker run --rm -v "%cd%:/data" log-analyzer --file /data/logs.txt
 
 Из консоли:
 
-```sh
+```bash
 type logs.txt | docker run --rm -i log-analyzer --file -
 ```

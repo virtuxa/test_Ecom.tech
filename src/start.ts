@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { analyzeFile } from "./pipeline.js";
+import { analyzeFile, analyzeStream } from "./pipeline.js";
 import type { AnalyzeOptions, Report, CliOptions } from "./types/interface.js";
 
 function isFlag(arg: string): boolean {
@@ -81,11 +81,13 @@ function helpText(): string {
   return [
     "Использование:",
     "  node dist/src/start.js --file <path> [--top N] [--strict] [--max-invalid N]",
+    "  node dist/src/start.js --file - [--top N] [--strict] [--max-invalid N]",
     "  node dist/src/start.js <path> [--top N] [--strict] [--max-invalid N]",
     "  npm start -- --file <path> [--top N] [--strict] [--max-invalid N]",
     "  npm start -- <path> [--top N] [--strict] [--max-invalid N]",
     "",
     "Примечание:",
+    "  Для чтения из stdin `--file -`",
     "  --strict       Завершить работу при первой невалидной строке",
     "  --max-invalid  В не-strict режиме завершить работу, если число невалидных строк превышает N",
   ].join("\n");
@@ -101,11 +103,22 @@ export async function runCli(argv = process.argv): Promise<number> {
 
     const topN = options.topN ?? 3;
 
-    if (options.filePath === undefined) throw new Error("Missing log file path (use --file)");
-    if (!fs.existsSync(options.filePath)) throw new Error(`File not found: ${options.filePath}`);
-    if (!fs.statSync(options.filePath).isFile()) throw new Error(`Not a file: ${options.filePath}`);
+    const report = await (async (): Promise<Report> => {
+      if (options.filePath === undefined) {
+        if (process.stdin.isTTY) throw new Error("Missing log file path (use --file)");
+        process.stdin.setEncoding("utf8");
+        return analyzeStream(process.stdin, options);
+      }
 
-    const report = await analyzeFile(options.filePath, options);
+      if (options.filePath === "-") {
+        process.stdin.setEncoding("utf8");
+        return analyzeStream(process.stdin, options);
+      }
+
+      if (!fs.existsSync(options.filePath)) throw new Error(`File not found: ${options.filePath}`);
+      if (!fs.statSync(options.filePath).isFile()) throw new Error(`Not a file: ${options.filePath}`);
+      return analyzeFile(options.filePath, options);
+    })();
 
     process.stdout.write(`${formatReport(report, { topN })}\n`);
 

@@ -5,6 +5,15 @@
 - количество ошибок (ERROR)
 - топ-3 пользователей с ошибками
 
+Поддерживаемые аргументы:
+```
+--help
+--file <Путь>
+--top <Число>
+--strict
+--max-invalid <Число>
+```
+
 ## Запуск
 
 1. Установить зависимости:
@@ -29,12 +38,33 @@ npm run test
 
 Запуск с помощью npm
 ```bash
-npm start -- --file path/to/log.txt --top 2
+npm start -- --file path/to/log.txt
 ```
 
 Запуск с помощью node
 ```bash
 node dist/src/start.js --file path/to/log.txt
-node dist/src/start.js path/to/log.txt --top 3
+node dist/src/start.js path/to/log.txt
 ```
 
+## Docker
+
+1. Собрать проект:
+
+```bash
+docker build -t log-analyzer .
+```
+
+2. Запуск анализа логов
+
+Из файла:
+
+```bash
+docker run --rm -v "%cd%:/data" log-analyzer --file /data/logs.txt
+```
+
+Из консоли:
+
+```sh
+type logs.txt | docker run --rm -i log-analyzer --file -
+```

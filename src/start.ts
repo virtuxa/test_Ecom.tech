@@ -5,7 +5,7 @@ import { analyzeFile, analyzeStream } from "./pipeline.js";
 import type { AnalyzeOptions, Report, CliOptions } from "./types/interface.js";
 
 function isFlag(arg: string): boolean {
-  return arg.startsWith("-");
+  return arg.startsWith("-") && arg !== "-";
 }
 
 function parseNumberFlag(flag: string, value: string | undefined): number {
